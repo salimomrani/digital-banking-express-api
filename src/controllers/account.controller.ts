@@ -1,12 +1,16 @@
-const accounts = require('../data/accounts');
+import { Request, Response } from 'express';
+import accounts, { Account, Transaction, TransactionType } from '../data/accounts';
 
-const findAccount = (accountId) => accounts.find((account) => account.id === accountId);
+const VALID_TRANSACTION_TYPES: TransactionType[] = ['credit', 'debit'];
 
-const listAccounts = (req, res) => {
+const findAccount = (accountId: string): Account | undefined =>
+  accounts.find((account) => account.id === accountId);
+
+export const listAccounts = (_req: Request, res: Response): Response => {
   return res.json({ accounts });
 };
 
-const getAccountById = (req, res) => {
+export const getAccountById = (req: Request, res: Response): Response => {
   const account = findAccount(req.params.accountId);
 
   if (!account) {
@@ -16,16 +20,23 @@ const getAccountById = (req, res) => {
   return res.json({ account });
 };
 
-const createTransaction = (req, res) => {
+type TransactionPayload = {
+  type?: TransactionType;
+  amount?: number;
+  label?: string;
+};
+
+export const createTransaction = (req: Request, res: Response): Response => {
   const account = findAccount(req.params.accountId);
 
   if (!account) {
     return res.status(404).json({ message: 'Compte introuvable' });
   }
 
-  const { type, amount, label } = req.body || {};
+  const payload = (req.body ?? {}) as TransactionPayload;
+  const { type, amount, label } = payload;
 
-  if (!['credit', 'debit'].includes(type)) {
+  if (!type || !VALID_TRANSACTION_TYPES.includes(type)) {
     return res.status(400).json({ message: "Le type doit être 'credit' ou 'debit'" });
   }
 
@@ -33,7 +44,7 @@ const createTransaction = (req, res) => {
     return res.status(400).json({ message: 'Le montant doit être un nombre positif' });
   }
 
-  const transaction = {
+  const transaction: Transaction = {
     id: `TRX-${Date.now()}`,
     type,
     amount,
@@ -61,10 +72,4 @@ const createTransaction = (req, res) => {
     },
     transaction
   });
-};
-
-module.exports = {
-  listAccounts,
-  getAccountById,
-  createTransaction
 };

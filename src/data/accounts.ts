@@ -1,4 +1,22 @@
-const accounts = [
+export type TransactionType = 'credit' | 'debit';
+
+export interface Transaction {
+  id: string;
+  type: TransactionType;
+  amount: number;
+  label: string;
+  date: string;
+}
+
+export interface Account {
+  id: string;
+  owner: string;
+  balance: number;
+  currency: string;
+  transactions: Transaction[];
+}
+
+const accounts: Account[] = [
   {
     id: 'ACC-1001',
     owner: 'Awa Traoré',
@@ -21,4 +39,4 @@ const accounts = [
   }
 ];
 
-module.exports = accounts;
+export default accounts;
