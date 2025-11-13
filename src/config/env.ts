@@ -18,13 +18,15 @@ export interface AppConfig {
   port: number;
   serviceName: string;
   allowedOrigins: string[];
+  apiKey: string;
 }
 
 const config: AppConfig = {
   env: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT) || 4000,
   serviceName: process.env.SERVICE_NAME || 'digital-banking-api',
-  allowedOrigins: parseAllowedOrigins(process.env.ALLOWED_ORIGINS)
+  allowedOrigins: parseAllowedOrigins(process.env.ALLOWED_ORIGINS),
+  apiKey: process.env.API_KEY || 'local-dev-key'
 };
 
 export default config;

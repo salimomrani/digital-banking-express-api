@@ -1,9 +1,12 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import cors, { CorsOptions } from 'cors';
 import morgan from 'morgan';
 
-import routes from './routes';
 import config from './config/env';
+import authRoutes from './modules/auth/auth.routes';
+import accountsRoutes from './modules/accounts/accounts.routes';
+import transactionsRoutes from './modules/transactions/transactions.routes';
+import errorHandler from './core/middleware/error-handler';
 
 const app = express();
 
@@ -19,18 +22,14 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', service: config.serviceName, timestamp: new Date().toISOString() });
 });
 
-app.use('/api', routes);
+app.use('/api/auth', authRoutes);
+app.use('/api/accounts', accountsRoutes);
+app.use('/api/transactions', transactionsRoutes);
 
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ message: 'Ressource non trouvée' });
 });
 
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error(err);
-  res.status(500).json({
-    message: 'Erreur interne du serveur',
-    details: config.env === 'development' ? err.message : undefined
-  });
-});
+app.use(errorHandler);
 
 export default app;
