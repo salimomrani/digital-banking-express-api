@@ -30,3 +30,7 @@ npm start
 Configurer les variables d'environnement en copiant `.env.example` vers `.env` si besoin.
 
 - `ALLOWED_ORIGINS` accepte une liste d'origines séparées par des virgules (ex : `http://localhost:4200,https://app.example.com`) et seules ces origines pourront appeler l'API.
+
+## Intégration Continue
+
+Chaque push ou pull request vers `main` déclenche une GitHub Action (`.github/workflows/ci.yml`) qui installe les dépendances et exécute `npm test`.
