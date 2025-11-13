@@ -28,6 +28,7 @@
 ## Security & Configuration Tips
 - Manage origins via `ALLOWED_ORIGINS` in `.env` (comma-separated); keep `.env.example` authoritative for safe defaults.
 - Never commit real secrets; prefer temporary `.env.local` overrides ignored by git.
+- In CI, store the entire `.env` content inside the `ENV_FILE` repository secret; the workflow writes it to `.env` before lint/build so pipelines mirror local config.
 
 ## Recommended Enhancements
 - Add persistence/integration points (PostgreSQL + Prisma or MongoDB) behind repository modules to swap out the mock data safely.

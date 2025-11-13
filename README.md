@@ -50,4 +50,15 @@ Configurer les variables d'environnement en copiant `.env.example` vers `.env` s
 
 ## Intégration Continue
 
-Chaque push ou pull request vers `main` déclenche une GitHub Action (`.github/workflows/ci.yml`) qui installe les dépendances, lance `npm run lint` puis `npm run build`.
+Chaque push ou pull request vers `main` déclenche une GitHub Action (`.github/workflows/ci.yml`) qui :
+- recrée un `.env` éphémère à partir du secret GitHub `ENV_FILE`,
+- installe les dépendances (`npm install`),
+- exécute `npm run lint` puis `npm run build`.
+
+Déclare `ENV_FILE` via *Settings → Secrets and variables → Actions* et colle-y ton fichier `.env` (sans secrets inutiles) tel quel, par exemple :
+
+```
+PORT=4000
+SERVICE_NAME=digital-banking-api
+ALLOWED_ORIGINS=http://localhost:4200
+```
