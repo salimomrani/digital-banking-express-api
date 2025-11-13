@@ -42,11 +42,13 @@ npm install
 Configurer les variables d'environnement en copiant `.env.example` vers `.env` si besoin.
 
 - `ALLOWED_ORIGINS` accepte une liste d'origines séparées par des virgules (ex : `http://localhost:4200,https://app.example.com`) et seules ces origines pourront appeler l'API.
+- `API_KEY` détermine la valeur attendue dans l'en-tête `x-api-key` (retournée aussi par `POST /api/auth/login`).
 
 ## Stack & Qualité
 
 - Node.js + Express + TypeScript (ts-node-dev en dev, `tsc` pour la build).
 - ESLint + `@typescript-eslint` garantit un style cohérent (`npm test` déclenche `npm run lint`).
+- Zod vérifie les payloads d'entrée via les schémas présents dans chaque module.
 
 ## Intégration Continue
 
@@ -62,3 +64,26 @@ PORT=4000
 SERVICE_NAME=digital-banking-api
 ALLOWED_ORIGINS=http://localhost:4200
 ```
+
+## Architecture
+
+```
+src/
+├── app.ts / server.ts
+├── config/
+│   ├── env.ts
+│   └── db.ts
+├── core/
+│   ├── errors/
+│   ├── middleware/
+│   ├── utils/
+│   └── types/
+├── modules/
+│   ├── auth/
+│   ├── accounts/
+│   └── transactions/
+├── models/
+└── tests/
+```
+
+Chaque module contient `controller/service/routes/repository/schemas`. Les routes `accounts` et `transactions` passent par `api-key.middleware.ts` et les erreurs sont normalisées via `core/middleware/error-handler.ts`.
