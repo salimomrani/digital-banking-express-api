@@ -6,6 +6,7 @@ import config from './config/env';
 import authRoutes from './modules/auth/auth.routes';
 import accountsRoutes from './modules/accounts/accounts.routes';
 import transactionsRoutes from './modules/transactions/transactions.routes';
+import bankRoutes from './modules/bank/bank.routes';
 import errorHandler from './core/middleware/error-handler';
 
 const app = express();
@@ -25,6 +26,7 @@ app.get('/health', (_req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/accounts', accountsRoutes);
 app.use('/api/transactions', transactionsRoutes);
+app.use('/api/bank', bankRoutes);
 
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ message: 'Ressource non trouvée' });

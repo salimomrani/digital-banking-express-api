@@ -37,6 +37,8 @@ model Account {
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
+  cards        Card[]
+  loans        Loan[]
 
   @@map("accounts")
 }
@@ -55,4 +57,41 @@ model Transaction {
   account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   @@map("transactions")
+}
+
+model Card {
+  id            Int      @id @default(autoincrement())
+  accountId     Int      @map("account_id")
+  cardNumber    String   @unique @map("card_number")
+  cardType      String   @map("card_type") // debit, credit, virtual
+  cardholderName String  @map("cardholder_name")
+  expiryDate    String   @map("expiry_date") // MM/YY format
+  cvv           String
+  status        String   @default("active") // active, blocked, expired
+  limit         Decimal? @db.Decimal(15, 2)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("cards")
+}
+
+model Loan {
+  id               Int      @id @default(autoincrement())
+  accountId        Int      @map("account_id")
+  loanType         String   @map("loan_type") // personal, mortgage, auto
+  amount           Decimal  @db.Decimal(15, 2)
+  remainingBalance Decimal  @map("remaining_balance") @db.Decimal(15, 2)
+  interestRate     Decimal  @map("interest_rate") @db.Decimal(5, 2)
+  durationMonths   Int      @map("duration_months")
+  monthlyPayment   Decimal  @map("monthly_payment") @db.Decimal(15, 2)
+  status           String   @default("active") // active, paid, defaulted
+  startDate        DateTime @default(now()) @map("start_date")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("loans")
 }
