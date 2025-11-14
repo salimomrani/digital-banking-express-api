@@ -4,7 +4,7 @@ Bienvenue dans la documentation technique du backend de l'application Digital Ba
 
 ## 📚 Structure de la documentation
 
-### 1. [Architecture](./01-architecture.md)
+### 1. [Architecture](01-architecture.md)
 Vue d'ensemble de l'architecture technique du projet:
 - Stack technique (Express, TypeScript, Prisma, PostgreSQL)
 - Architecture en couches (Controller → Service → Repository)
@@ -15,7 +15,7 @@ Vue d'ensemble de l'architecture technique du projet:
 
 **À lire en premier** pour comprendre les fondations du projet.
 
-### 2. [État d'implémentation](./02-implementation-status.md)
+### 2. [État d'implémentation](02-implementation-status.md)
 Suivi détaillé de toutes les fonctionnalités:
 - ✅ Fonctionnalités implémentées
 - 🚧 Fonctionnalités partielles
@@ -25,7 +25,7 @@ Suivi détaillé de toutes les fonctionnalités:
 
 **Consultez ce document** avant de commencer une nouvelle feature pour éviter les doublons.
 
-### 3. [Guide de développement](./03-development-guide.md)
+### 3. [Guide de développement](03-development-guide.md)
 Guide pratique pour développer de nouvelles fonctionnalités:
 - Comment ajouter un nouveau module
 - Patterns et conventions du projet
@@ -37,7 +37,7 @@ Guide pratique pour développer de nouvelles fonctionnalités:
 
 **Suivez ce guide** lors de l'implémentation de nouvelles features.
 
-### 4. [Fonctionnalités planifiées](./backend-feature.md)
+### 4. [Fonctionnalités planifiées](backend-feature.md)
 Liste complète des fonctionnalités à implémenter:
 - Comptes bancaires (CRUD complet)
 - Transactions avancées
@@ -267,7 +267,7 @@ Fichier `.vscode/launch.json`:
 
 ## 🎯 Prochaines étapes
 
-Voir [État d'implémentation - Priorités](./02-implementation-status.md#priorités-dimplémentation-recommandées) pour la roadmap.
+Voir [État d'implémentation - Priorités](02-implementation-status.md#priorités-dimplémentation-recommandées) pour la roadmap.
 
 **Phase 1 prioritaire**: Sécurité
 - ⚠️ Hash des passwords avec bcrypt
