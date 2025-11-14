@@ -2,16 +2,16 @@ import { Request, Response } from 'express';
 import transactionsService from './transactions.service';
 import { accountIdParamSchema, transactionPayloadSchema } from './transactions.schemas';
 
-export const listTransactions = (req: Request, res: Response): Response => {
+export const listTransactions = async (req: Request, res: Response): Promise<Response> => {
   const { accountId } = accountIdParamSchema.parse(req.params);
-  const transactions = transactionsService.listTransactions(accountId);
+  const transactions = await transactionsService.listTransactions(accountId);
   return res.json({ transactions });
 };
 
-export const createTransaction = (req: Request, res: Response): Response => {
+export const createTransaction = async (req: Request, res: Response): Promise<Response> => {
   const { accountId } = accountIdParamSchema.parse(req.params);
   const payload = transactionPayloadSchema.parse(req.body);
-  const result = transactionsService.createTransaction(accountId, payload);
+  const result = await transactionsService.createTransaction(accountId, payload);
 
   return res.status(201).json({
     message: 'Transaction enregistrée',

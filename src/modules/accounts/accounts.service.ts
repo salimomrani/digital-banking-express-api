@@ -3,12 +3,12 @@ import HttpException from '../../core/errors/http-exception';
 import { Account } from '../../models/account.model';
 
 class AccountsService {
-  listAccounts(): Account[] {
-    return accountsRepository.findAll();
+  async listAccounts(): Promise<Account[]> {
+    return await accountsRepository.findAll();
   }
 
-  getAccount(accountId: string): Account {
-    const account = accountsRepository.findById(accountId);
+  async getAccount(accountId: string): Promise<Account> {
+    const account = await accountsRepository.findById(accountId);
     if (!account) {
       throw new HttpException(404, 'Compte introuvable');
     }
