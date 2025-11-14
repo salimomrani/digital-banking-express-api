@@ -16,8 +16,13 @@ const connectDb = async (): Promise<void> => {
 };
 
 // Graceful shutdown
-process.on('beforeExit', async () => {
-  await prisma.$disconnect();
-});
+async function gracefulShutdown() {
+    console.log("Shutting down...");
+    await prisma.$disconnect();
+    process.exit(0);
+}
 
+process.on('SIGINT', gracefulShutdown);   // Ctrl + C
+process.on('SIGTERM', gracefulShutdown);  // Docker stop
+process.on('beforeExit', gracefulShutdown);
 export default connectDb;
