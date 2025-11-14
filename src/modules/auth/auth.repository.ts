@@ -1,58 +1,37 @@
-import { pool } from '../../config/db';
+import { prisma } from '../../config/db';
 import { User } from '../../models/user.model';
 
 class AuthRepository {
   async findByEmail(email: string): Promise<(User & { password: string }) | undefined> {
-    const query = `
-      SELECT
-        id,
-        email,
-        password,
-        first_name || ' ' || last_name as name,
-        ARRAY['customer']::text[] as roles
-      FROM users
-      WHERE email = $1
-    `;
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
 
-    const result = await pool.query(query, [email]);
-
-    if (result.rows.length === 0) {
+    if (!user) {
       return undefined;
     }
 
-    const row = result.rows[0];
     return {
-      id: row.id.toString(),
-      email: row.email,
-      name: row.name,
-      roles: row.roles,
-      password: row.password
+      id: user.id.toString(),
+      email: user.email,
+      name: `${user.firstName} ${user.lastName}`,
+      roles: ['customer'],
+      password: user.password
     };
   }
 
   async getDefaultUser(): Promise<User> {
-    const query = `
-      SELECT
-        id,
-        email,
-        first_name || ' ' || last_name as name,
-        ARRAY['customer']::text[] as roles
-      FROM users
-      LIMIT 1
-    `;
+    const user = await prisma.user.findFirst();
 
-    const result = await pool.query(query);
-
-    if (result.rows.length === 0) {
+    if (!user) {
       throw new Error('No users found in database');
     }
 
-    const row = result.rows[0];
     return {
-      id: row.id.toString(),
-      email: row.email,
-      name: row.name,
-      roles: row.roles
+      id: user.id.toString(),
+      email: user.email,
+      name: `${user.firstName} ${user.lastName}`,
+      roles: ['customer']
     };
   }
 }

@@ -18,18 +18,29 @@ Copy `.env.example` to `.env` before running. Key variables:
 - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` - PostgreSQL connection settings
 
 ### Database Setup
-**Start PostgreSQL with Docker:**
+**1. Start PostgreSQL with Docker:**
 ```bash
 docker-compose up -d
 ```
 
-This starts PostgreSQL 16 on port 5433 (to avoid conflict with local PostgreSQL on 5432) and runs the initialization script at `docker/init.sql` to create tables and seed data.
+This starts PostgreSQL 16 on port 5433 (to avoid conflict with local PostgreSQL on 5432).
 
-**Stop Database:**
+**2. Initialize database schema with Prisma:**
+```bash
+npx prisma db push        # Sync schema to database
+npm run prisma:seed       # Seed with development data
+```
+
+**3. Stop Database:**
 ```bash
 docker-compose down        # Stop and keep data
-docker-compose down -v     # Stop and delete all data
+docker-compose down -v     # Stop and delete all data (will need to re-run prisma db push)
 ```
+
+**Common Prisma Commands:**
+- `npx prisma studio` - Open Prisma Studio (visual database editor)
+- `npx prisma db push` - Push schema changes to database
+- `npx prisma generate` - Regenerate Prisma Client after schema changes
 
 See `README.Docker.md` for detailed database documentation.
 
@@ -70,14 +81,17 @@ The codebase follows a domain-oriented architecture where each feature is organi
 
 ### Data Persistence
 - Uses **PostgreSQL 16** for data storage (via Docker)
-- Connection pool configured in `src/config/db.ts` using the `pg` library
-- Database schema defined in `docker/init.sql` with three main tables:
-  - `users` - User authentication and profile data
-  - `accounts` - Bank accounts linked to users
-  - `transactions` - Transaction history with balance tracking
-- All repository methods are async and use parameterized queries to prevent SQL injection
-- Transaction creation uses database transactions (BEGIN/COMMIT/ROLLBACK) to ensure atomicity
-- The `pool` is exported from `src/config/db.ts` for direct database access when needed
+- **Prisma ORM** for type-safe database access
+  - Schema defined in `prisma/schema.prisma`
+  - Generated types provide full TypeScript autocompletion
+  - Prisma Client instance exported from `src/config/db.ts`
+- Database schema with three main models:
+  - `User` - User authentication and profile data
+  - `Account` - Bank accounts linked to users
+  - `Transaction` - Transaction history with balance tracking
+- All repository methods use Prisma Client for type-safe queries
+- Transaction creation uses Prisma's `$transaction` API to ensure atomicity
+- Database seeding via `prisma/seed.ts` (run with `npm run prisma:seed`)
 
 ## Git Workflow (Gitflow)
 

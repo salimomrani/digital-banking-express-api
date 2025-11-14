@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  firstName String   @map("first_name")
+  lastName  String   @map("last_name")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  accounts Account[]
+
+  @@map("users")
+}
+
+model Account {
+  id            Int      @id @default(autoincrement())
+  accountNumber String   @unique @map("account_number")
+  userId        Int      @map("user_id")
+  balance       Decimal  @default(0) @db.Decimal(15, 2)
+  currency      String   @default("EUR")
+  accountType   String   @default("checking") @map("account_type")
+  status        String   @default("active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@map("accounts")
+}
+
+model Transaction {
+  id              Int      @id @default(autoincrement())
+  accountId       Int      @map("account_id")
+  transactionType String   @map("transaction_type")
+  amount          Decimal  @db.Decimal(15, 2)
+  balanceAfter    Decimal  @map("balance_after") @db.Decimal(15, 2)
+  description     String?
+  reference       String?
+  status          String   @default("completed")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
