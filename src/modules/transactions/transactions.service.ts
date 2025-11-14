@@ -5,16 +5,16 @@ import { Transaction } from '../../models/transaction.model';
 import { TransactionPayload } from './transactions.schemas';
 
 class TransactionsService {
-  listTransactions(accountId: string): Transaction[] {
-    const account = accountsRepository.findById(accountId);
+  async listTransactions(accountId: string): Promise<Transaction[]> {
+    const account = await accountsRepository.findById(accountId);
     if (!account) {
       throw new HttpException(404, 'Compte introuvable');
     }
     return account.transactions;
   }
 
-  createTransaction(accountId: string, payload: TransactionPayload) {
-    const account = accountsRepository.findById(accountId);
+  async createTransaction(accountId: string, payload: TransactionPayload) {
+    const account = await accountsRepository.findById(accountId);
     if (!account) {
       throw new HttpException(404, 'Compte introuvable');
     }
@@ -23,24 +23,20 @@ class TransactionsService {
       throw new HttpException(400, 'Solde insuffisant');
     }
 
-    const transaction: Transaction = {
-      id: `TRX-${Date.now()}`,
+    const transactionData: Omit<Transaction, 'id'> = {
       type: payload.type,
       amount: payload.amount,
       label: payload.label || 'Transaction',
       date: new Date().toISOString().slice(0, 10)
     };
 
-    if (payload.type === 'credit') {
-      account.balance += payload.amount;
-    } else {
-      account.balance -= payload.amount;
-    }
+    // Use the new addTransaction method that handles DB transaction
+    const transaction = await accountsRepository.addTransaction(accountId, transactionData);
 
-    account.transactions.unshift(transaction);
-    transactionsRepository.persist(account);
+    // Fetch updated account
+    const updatedAccount = await accountsRepository.findById(accountId);
 
-    return { account, transaction };
+    return { account: updatedAccount!, transaction };
   }
 }
 

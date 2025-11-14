@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: digital-banking-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-banking_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-banking_password}
+      POSTGRES_DB: ${DB_NAME:-digital_banking}
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-banking_user} -d ${DB_NAME:-digital_banking}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local

@@ -3,20 +3,21 @@ import accountsService from './accounts.service';
 import { accountIdParamSchema, accountTransactionSchema } from './accounts.schemas';
 import transactionsService from '../transactions/transactions.service';
 
-export const listAccounts = (_req: Request, res: Response): Response => {
-  return res.json({ accounts: accountsService.listAccounts() });
+export const listAccounts = async (_req: Request, res: Response): Promise<Response> => {
+  const accounts = await accountsService.listAccounts();
+  return res.json({ accounts });
 };
 
-export const getAccountById = (req: Request, res: Response): Response => {
+export const getAccountById = async (req: Request, res: Response): Promise<Response> => {
   const { accountId } = accountIdParamSchema.parse(req.params);
-  const account = accountsService.getAccount(accountId);
+  const account = await accountsService.getAccount(accountId);
   return res.json({ account });
 };
 
-export const createAccountTransaction = (req: Request, res: Response): Response => {
+export const createAccountTransaction = async (req: Request, res: Response): Promise<Response> => {
   const { accountId } = accountIdParamSchema.parse(req.params);
   const payload = accountTransactionSchema.parse(req.body);
-  const result = transactionsService.createTransaction(accountId, payload);
+  const result = await transactionsService.createTransaction(accountId, payload);
 
   return res.status(201).json({
     message: 'Transaction enregistrée',

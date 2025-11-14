@@ -15,14 +15,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Copy `.env.example` to `.env` before running. Key variables:
 - `API_KEY` - Required for API authentication (returned by POST /api/auth/login and validated via x-api-key header)
 - `ALLOWED_ORIGINS` - Comma-separated list of CORS origins (e.g., `http://localhost:4200,https://app.example.com`)
+- `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` - PostgreSQL connection settings
+
+### Database Setup
+**Start PostgreSQL with Docker:**
+```bash
+docker-compose up -d
+```
+
+This starts PostgreSQL 16 on port 5433 (to avoid conflict with local PostgreSQL on 5432) and runs the initialization script at `docker/init.sql` to create tables and seed data.
+
+**Stop Database:**
+```bash
+docker-compose down        # Stop and keep data
+docker-compose down -v     # Stop and delete all data
+```
+
+See `README.Docker.md` for detailed database documentation.
 
 ## Architecture
 
 ### Domain-Driven Module Structure
 The codebase follows a domain-oriented architecture where each feature is organized into modules under `src/modules/`. Each module contains:
-- `*.controller.ts` - Express request/response handlers
-- `*.service.ts` - Business logic layer
-- `*.repository.ts` - Data access layer (currently in-memory, designed for database later)
+- `*.controller.ts` - Express request/response handlers (async functions returning Promises)
+- `*.service.ts` - Business logic layer (async functions)
+- `*.repository.ts` - Data access layer with PostgreSQL queries
 - `*.routes.ts` - Route definitions and middleware setup
 - `*.schemas.ts` - Zod validation schemas for request/response payloads
 
@@ -52,9 +69,15 @@ The codebase follows a domain-oriented architecture where each feature is organi
 - Auth validation is centralized in `authService.validateApiKey()` (src/modules/auth/auth.service.ts)
 
 ### Data Persistence
-- Currently uses in-memory storage (arrays in repository files)
-- Repository pattern is in place to facilitate future database integration
-- `src/config/db.ts` has a placeholder `connectDb()` function for future database setup
+- Uses **PostgreSQL 16** for data storage (via Docker)
+- Connection pool configured in `src/config/db.ts` using the `pg` library
+- Database schema defined in `docker/init.sql` with three main tables:
+  - `users` - User authentication and profile data
+  - `accounts` - Bank accounts linked to users
+  - `transactions` - Transaction history with balance tracking
+- All repository methods are async and use parameterized queries to prevent SQL injection
+- Transaction creation uses database transactions (BEGIN/COMMIT/ROLLBACK) to ensure atomicity
+- The `pool` is exported from `src/config/db.ts` for direct database access when needed
 
 ## Git Workflow (Gitflow)
 

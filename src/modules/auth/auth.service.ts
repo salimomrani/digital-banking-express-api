@@ -5,8 +5,8 @@ import config from '../../config/env';
 import { User } from '../../models/user.model';
 
 class AuthService {
-  login(payload: LoginInput): { token: string; apiKey: string; user: User } {
-    const record = authRepository.findByEmail(payload.email);
+  async login(payload: LoginInput): Promise<{ token: string; apiKey: string; user: User }> {
+    const record = await authRepository.findByEmail(payload.email);
 
     if (!record || record.password !== payload.password) {
       throw new HttpException(401, 'Identifiants invalides');
@@ -25,8 +25,8 @@ class AuthService {
     }
   }
 
-  me(): User {
-    return authRepository.getDefaultUser();
+  async me(): Promise<User> {
+    return await authRepository.getDefaultUser();
   }
 }
 
