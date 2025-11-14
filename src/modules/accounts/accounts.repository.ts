@@ -1,7 +1,12 @@
 import { prisma } from '../../config/db';
 import { Account } from '../../models/account.model';
 import { Transaction } from '../../models/transaction.model';
-import { Prisma } from '@prisma/client';
+import { Prisma, Account as PrismaAccount, User as PrismaUser, Transaction as PrismaTransaction } from '@prisma/client';
+
+type AccountWithRelations = PrismaAccount & {
+  user: PrismaUser;
+  transactions: PrismaTransaction[];
+};
 
 class AccountsRepository {
   async findAll(): Promise<Account[]> {
@@ -19,12 +24,12 @@ class AccountsRepository {
       }
     });
 
-    return accounts.map((account) => ({
+    return accounts.map((account: AccountWithRelations) => ({
       id: account.accountNumber,
       owner: `${account.user.firstName} ${account.user.lastName}`,
       balance: account.balance.toNumber(),
       currency: account.currency,
-      transactions: account.transactions.map((t) => ({
+      transactions: account.transactions.map((t: PrismaTransaction) => ({
         id: t.id.toString(),
         type: t.transactionType as 'credit' | 'debit',
         amount: t.amount.toNumber(),
@@ -56,7 +61,7 @@ class AccountsRepository {
       owner: `${account.user.firstName} ${account.user.lastName}`,
       balance: account.balance.toNumber(),
       currency: account.currency,
-      transactions: account.transactions.map((t) => ({
+      transactions: account.transactions.map((t: PrismaTransaction) => ({
         id: t.id.toString(),
         type: t.transactionType as 'credit' | 'debit',
         amount: t.amount.toNumber(),
@@ -70,7 +75,7 @@ class AccountsRepository {
     await prisma.account.update({
       where: { accountNumber: account.id },
       data: {
-        balance: new Prisma.Decimal(account.balance)
+        balance: account.balance
       }
     });
 
@@ -79,7 +84,7 @@ class AccountsRepository {
 
   async addTransaction(accountId: string, transaction: Omit<Transaction, 'id'>): Promise<Transaction> {
     // Use Prisma transaction to ensure atomicity
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Get account
       const account = await tx.account.findUnique({
         where: { accountNumber: accountId }
@@ -101,8 +106,8 @@ class AccountsRepository {
         data: {
           accountId: account.id,
           transactionType: transaction.type,
-          amount: new Prisma.Decimal(transaction.amount),
-          balanceAfter: new Prisma.Decimal(newBalance),
+          amount: transaction.amount,
+          balanceAfter: newBalance,
           description: transaction.label
         }
       });
@@ -111,7 +116,7 @@ class AccountsRepository {
       await tx.account.update({
         where: { id: account.id },
         data: {
-          balance: new Prisma.Decimal(newBalance)
+          balance: newBalance
         }
       });
 

@@ -1,5 +1,6 @@
 import { prisma } from '../../config/db';
 import { Transaction } from '../../models/transaction.model';
+import { Transaction as PrismaTransaction } from '@prisma/client';
 
 class TransactionsRepository {
   async listByAccountId(accountId: string): Promise<Transaction[]> {
@@ -14,7 +15,7 @@ class TransactionsRepository {
       }
     });
 
-    return transactions.map((t) => ({
+    return transactions.map((t: PrismaTransaction) => ({
       id: t.id.toString(),
       type: t.transactionType as 'credit' | 'debit',
       amount: t.amount.toNumber(),
