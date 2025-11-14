@@ -7,3 +7,5 @@ dist/
 .idea/
 coverage/
 npm-debug.log*
+
+/src/generated/prisma
